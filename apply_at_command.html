@@ -417,6 +417,13 @@ el('send-btn').addEventListener('click', sendCommand);
 el('at-command').addEventListener('keydown', function(e) { if (e.key === 'Enter' && e.ctrlKey) sendCommand(); });
 el('clear-log').addEventListener('click', function() { el('log-content').innerHTML = '<div class="text-gray-500 italic">Log cleared</div>'; });
 
+function setupFirebaseListener() {
+    const answerRef = db.ref('answer');
+    answerRef.on('value', (snapshot) => {
+        // Sadece dinle, aktif polling zaten checkFirebaseResponse ile yapılıyor
+    });
+}
+
 // Firebase realtime listener - event-based, auth sonrası başlar!
 firebase.auth().signInAnonymously().then(() => {
     setupFirebaseListener();
