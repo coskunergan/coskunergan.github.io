@@ -173,35 +173,56 @@ function setupFirebaseListener() {
 }
 
 async function handleRemoteCommand(msgId, command) {
-    // Komutu ESP32'ye local API üzerinden gönder (aynı ağdaysa)
+    // Önce local API dene (aynı ağdaysa)
+    let localSuccess = false;
     try {
-        const resp = await fetch(`/api/at_send?cmd=${encodeURIComponent(command)}`);
-        const data = await resp.json();
+        const resp = await fetch(`/api/at_send?cmd=${encodeURIComponent(command)}`, {
+            method: 'GET',
+            mode: 'cors'
+        });
         
-        if (data.status === 'sent') {
-            addLog('info', 'Command sent to ESP32');
-            
-            // Yanıtı bekle
-            setTimeout(async () => {
-                try {
-                    const resp = await fetch('/api/at_response');
-                    const data = await resp.json();
-                    if (data.response) {
-                        addLog('tx', data.response);
-                        
-                        // Yanıtı Firebase'e yaz
-                        await writeFirebaseAnswer(msgId, data.response);
-                        addLog('info', 'Response sent to Firebase');
+        if (resp.ok) {
+            const data = await resp.json();
+            if (data.status === 'sent') {
+                localSuccess = true;
+                addLog('info', 'Command sent via local API');
+                
+                // Yanıtı bekle
+                setTimeout(async () => {
+                    try {
+                        const resp = await fetch('/api/at_response');
+                        const data = await resp.json();
+                        if (data.response) {
+                            addLog('tx', data.response);
+                            await writeFirebaseAnswer(msgId, data.response);
+                            addLog('info', 'Response sent to Firebase');
+                        }
+                    } catch (e) {
+                        addLog('error', 'Error getting response: ' + e.message);
                     }
-                } catch (e) {
-                    addLog('error', 'Error getting response: ' + e.message);
-                }
-            }, 1000);
+                }, 1000);
+            }
         }
     } catch (e) {
-        // Local API başarısız - sadece logla
-        addLog('error', 'Local API unavailable: ' + e.message);
-        addLog('info', 'Command logged for ESP32');
+        // Local API başarısız - devam et
+    }
+    
+    // Local başarısız olursa Firebase'e yaz (ESP32 dinlesin diye)
+    if (!localSuccess) {
+        addLog('info', 'Sending via Firebase for ESP32...');
+        try {
+            await fetch(FIREBASE_REQUEST_URL, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    msg_id: msgId,
+                    command: command,
+                    timestamp: Date.now()
+                })
+            });
+        } catch (e) {
+            addLog('error', 'Firebase write error: ' + e.message);
+        }
     }
 }
 
