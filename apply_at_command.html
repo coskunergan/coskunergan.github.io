@@ -145,34 +145,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// Dinleme fonksiyonu - event-based!
-function setupFirebaseListener() {
-    const requestRef = db.ref('request');
-    
-    requestRef.on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (data && data.msg_id && data.command) {
-            const msgId = data.msg_id;
-            const command = data.command;
-            
-            // Aynı msg_id zaten işleniyorsa ignore et
-            if (msgId === currentMsgId) return;
-            
-            console.log('Firebase event received:', msgId, command);
-            currentMsgId = msgId;
-            
-            // Gelen komutu log'a yaz
-            addLog('rx', `Remote: ${command}`);
-            
-            // Firebase üzerinden gönder
-            handleRemoteCommand(msgId, command);
-        }
-    }, (error) => {
-        console.error('Firebase listener error:', error);
-    });
-}
-
-    // Firebase REST API ile yanıtı bekle
+// Firebase REST API ile yanıtı bekle
     async function waitForFirebaseResponse(msgId, maxAttempts = 5) {
         for (let i = 0; i < maxAttempts; i++) {
             try {
@@ -363,7 +336,7 @@ async function sendCommand() {
         }
         
         // Firebase yanıtını bekle
-        addLog('info', 'Waiting for remote response...');
+        addLog('info', 'Waiting for remote2 response...');
         const response = await checkFirebaseResponse(result.msgId);
         
         if (response) {
