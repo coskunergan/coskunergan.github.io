@@ -10,6 +10,7 @@
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script id="tailwind-config">
         tailwind.config = {
@@ -149,7 +150,9 @@ const db = firebase.database();
     async function waitForFirebaseResponse(msgId, maxAttempts = 5) {
         for (let i = 0; i < maxAttempts; i++) {
             try {
-                const resp = await fetch(FIREBASE_ANSWER_URL);
+                const token = await getAuthToken();
+                const url = token ? FIREBASE_ANSWER_URL + '?auth=' + token : FIREBASE_ANSWER_URL;
+                const resp = await fetch(url);
                 const data = await resp.json();
                 
                 if (data && data.msg_id == msgId && data.response) {
@@ -171,7 +174,9 @@ const db = firebase.database();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
         
         try {
-            const writeResp = await fetch(FIREBASE_REQUEST_URL, {
+            const token = await getAuthToken();
+            const url = token ? FIREBASE_REQUEST_URL + '?auth=' + token : FIREBASE_REQUEST_URL;
+            const writeResp = await fetch(url, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -216,6 +221,12 @@ async function writeFirebaseAnswer(msgId, response) {
 // Firebase URL'ler (fallback için)
 const FIREBASE_REQUEST_URL = 'https://esp32s3-bc4de-default-rtdb.europe-west1.firebasedatabase.app/request.json';
 const FIREBASE_ANSWER_URL = 'https://esp32s3-bc4de-default-rtdb.europe-west1.firebasedatabase.app/answer.json';
+
+async function getAuthToken() {
+    const user = firebase.auth().currentUser;
+    if (!user) return null;
+    return await user.getIdToken();
+}
 
 function el(id) { return document.getElementById(id); }
 
@@ -277,7 +288,9 @@ async function sendCommandViaFirebase(command) {
     };
     
     try {
-        const resp = await fetch(FIREBASE_REQUEST_URL, {
+        const token = await getAuthToken();
+        const url = token ? FIREBASE_REQUEST_URL + '?auth=' + token : FIREBASE_REQUEST_URL;
+        const resp = await fetch(url, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -286,7 +299,7 @@ async function sendCommandViaFirebase(command) {
         if (resp.ok) {
             return { success: true, msgId: msgId };
         }
-        return { success: false, error: 'Mesage PUT failed' };
+        return { success: false, error: 'Message PUT failed' };
     } catch (e) {
         return { success: false, error: e.message };
     }
@@ -295,7 +308,9 @@ async function sendCommandViaFirebase(command) {
 async function checkFirebaseResponse(msgId, maxAttempts = 20) {
     for (let i = 0; i < maxAttempts; i++) {
         try {
-            const resp = await fetch(FIREBASE_ANSWER_URL);
+            const token = await getAuthToken();
+            const url = token ? FIREBASE_ANSWER_URL + '?auth=' + token : FIREBASE_ANSWER_URL;
+            const resp = await fetch(url);
             const data = await resp.json();
             if (data && data.msg_id === msgId && data.response) {
                 return data.response;
@@ -402,8 +417,12 @@ el('send-btn').addEventListener('click', sendCommand);
 el('at-command').addEventListener('keydown', function(e) { if (e.key === 'Enter' && e.ctrlKey) sendCommand(); });
 el('clear-log').addEventListener('click', function() { el('log-content').innerHTML = '<div class="text-gray-500 italic">Log cleared</div>'; });
 
-// Firebase realtime listener - event-based!
-setupFirebaseListener();
-addLog('info', 'Remote listener active (event-based)');
+// Firebase realtime listener - event-based, auth sonrası başlar!
+firebase.auth().signInAnonymously().then(() => {
+    setupFirebaseListener();
+    addLog('info', 'Remote listener active (event-based)');
+}).catch(err => {
+    addLog('error', 'Auth failed: ' + err.message);
+});
 </script>
 </body></html>
