@@ -172,59 +172,87 @@ function setupFirebaseListener() {
     });
 }
 
-async function handleRemoteCommand(msgId, command) {
-    // Önce local API dene (aynı ağdaysa)
-    let localSuccess = false;
-    try {
-        const resp = await fetch(`/api/at_send?cmd=${encodeURIComponent(command)}`, {
-            method: 'GET',
-            mode: 'cors'
-        });
-        
-        if (resp.ok) {
-            const data = await resp.json();
-            if (data.status === 'sent') {
-                localSuccess = true;
-                addLog('info', 'Command sent via local API');
+    // Firebase REST API ile yanıtı bekle
+    async function waitForFirebaseResponse(msgId, maxAttempts = 15) {
+        for (let i = 0; i < maxAttempts; i++) {
+            try {
+                const resp = await fetch(FIREBASE_ANSWER_URL);
+                const data = await resp.json();
                 
-                // Yanıtı bekle
-                setTimeout(async () => {
-                    try {
-                        const resp = await fetch('/api/at_response');
-                        const data = await resp.json();
-                        if (data.response) {
-                            addLog('tx', data.response);
-                            await writeFirebaseAnswer(msgId, data.response);
-                            addLog('info', 'Response sent to Firebase');
+                if (data && data.msg_id == msgId && data.response) {
+                    return data.response;
+                }
+            } catch (e) {
+                console.error('Firebase response check error:', e);
+            }
+            await new Promise(r => setTimeout(r, 500));
+        }
+        return null;
+    }
+
+    async function handleRemoteCommand(msgId, command) {
+        // Önce local API dene (aynı ağdaysa)
+        let localSuccess = false;
+        try {
+            const resp = await fetch(`/api/at_send?cmd=${encodeURIComponent(command)}`, {
+                method: 'GET',
+                mode: 'cors'
+            });
+            
+            if (resp.ok) {
+                const data = await resp.json();
+                if (data.status === 'sent') {
+                    localSuccess = true;
+                    addLog('info', 'Command sent via local API');
+                    
+                    // Yanıtı bekle
+                    setTimeout(async () => {
+                        try {
+                            const resp = await fetch('/api/at_response');
+                            const data = await resp.json();
+                            if (data.response) {
+                                addLog('tx', data.response);
+                                addLog('info', 'Command completed (local)');
+                            }
+                        } catch (e) {
+                            addLog('error', 'Error getting response: ' + e.message);
                         }
-                    } catch (e) {
-                        addLog('error', 'Error getting response: ' + e.message);
-                    }
-                }, 1000);
+                    }, 1000);
+                }
+            }
+        } catch (e) {
+            // Local API başarısız - Firebase üzerinden devam et
+        }
+        
+        // Local başarısız olursa Firebase'e yaz ve Firebase'den yanıt bekle
+        if (!localSuccess) {
+            addLog('info', 'Sending via Firebase for ESP32...');
+            try {
+                await fetch(FIREBASE_REQUEST_URL, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        msg_id: msgId,
+                        command: command,
+                        timestamp: Date.now()
+                    })
+                });
+                
+                // Firebase'den yanıt bekle
+                addLog('info', 'Waiting for Firebase response...');
+                const response = await waitForFirebaseResponse(msgId, 15);
+                
+                if (response) {
+                    addLog('tx', response);
+                    addLog('info', 'Command completed (via Firebase)');
+                } else {
+                    addLog('error', 'Firebase response timeout');
+                }
+            } catch (e) {
+                addLog('error', 'Firebase error: ' + e.message);
             }
         }
-    } catch (e) {
-        // Local API başarısız - devam et
     }
-    
-    // Local başarısız olursa Firebase'e yaz (ESP32 dinlesin diye)
-    if (!localSuccess) {
-        addLog('info', 'Sending via Firebase for ESP32...');
-        try {
-            await fetch(FIREBASE_REQUEST_URL, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    msg_id: msgId,
-                    command: command,
-                    timestamp: Date.now()
-                })
-            });
-        } catch (e) {
-            addLog('error', 'Firebase write error: ' + e.message);
-        }
-    }
-}
 
 async function writeFirebaseAnswer(msgId, response) {
     const answerRef = db.ref('answer');
