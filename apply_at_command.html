@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>XENTRON - AT Command</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "card-dark": "#1c212c",
+                        "input-dark": "#282e39"
+                    },
+                    fontFamily: { "display": ["Inter", "sans-serif"] },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        body { font-family: 'Inter', sans-serif; min-height: 100vh; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-slate-900 dark:text-white">
+<div class="fixed top-0 inset-x-0 z-50 flex items-center justify-between bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md px-4 py-3 border-b border-gray-200 dark:border-gray-800 h-14">
+<div class="flex items-center gap-2">
+<a href="/sim_network_settings.html" class="flex items-center gap-1 text-gray-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+</a>
+<h1 class="text-sm font-bold leading-tight uppercase tracking-wider text-slate-900 dark:text-white">XENTRON Telematics</h1>
+</div>
+</div>
+<main class="flex flex-col gap-4 p-4 pt-20 pb-24 max-w-md mx-auto">
+<div class="flex flex-col overflow-hidden rounded-2xl bg-card-dark shadow-lg border border-gray-800">
+<div class="p-4">
+<div class="flex items-center gap-3 mb-4">
+<div class="bg-primary/20 p-2 rounded-lg text-primary">
+<span class="material-symbols-outlined">terminal</span>
+</div>
+<div>
+<h2 class="text-white font-semibold text-base uppercase tracking-tight">AT Command</h2>
+<span class="text-[10px] text-gray-400 uppercase tracking-wider">Direct Modem Communication</span>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">AT Command Input</label>
+<textarea id="at-command" class="w-full h-24 bg-input-dark border border-gray-700 text-white font-mono text-xs rounded-lg p-3 focus:ring-primary focus:border-primary resize-none" placeholder="Enter AT command (e.g. AT+CSQ, AT+CEREG?)"></textarea>
+</div>
+<button id="send-btn" class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 mt-3 disabled:opacity-50 disabled:cursor-not-allowed">
+<span class="material-symbols-outlined text-lg">send</span>
+SEND COMMAND
+</button>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Quick Commands</label>
+<div class="flex flex-wrap gap-1.5">
+<button class="at-cmd px-2 py-1.5 bg-input-dark hover:bg-gray-700 border border-gray-700 rounded text-[10px] font-mono text-gray-300 transition-colors" data-cmd="AT">AT</button>
+<button class="at-cmd px-2 py-1.5 bg-input-dark hover:bg-gray-700 border border-gray-700 rounded text-[10px] font-mono text-gray-300 transition-colors" data-cmd="AT+CSQ">AT+CSQ</button>
+<button class="at-cmd px-2 py-1.5 bg-input-dark hover:bg-gray-700 border border-gray-700 rounded text-[10px] font-mono text-gray-300 transition-colors" data-cmd="AT+CEREG?">AT+CEREG?</button>
+<button class="at-cmd px-2 py-1.5 bg-input-dark hover:bg-gray-700 border border-gray-700 rounded text-[10px] font-mono text-gray-300 transition-colors" data-cmd="AT+CGREG?">AT+CGREG?</button>
+<button class="at-cmd px-2 py-1.5 bg-input-dark hover:bg-gray-700 border border-gray-700 rounded text-[10px] font-mono text-gray-300 transition-colors" data-cmd="AT+COPS?">AT+COPS?</button>
+<button class="at-cmd px-2 py-1.5 bg-input-dark hover:bg-gray-700 border border-gray-700 rounded text-[10px] font-mono text-gray-300 transition-colors" data-cmd="AT+QNWINFO">AT+QNWINFO</button>
+<button class="at-cmd px-2 py-1.5 bg-input-dark hover:bg-gray-700 border border-gray-700 rounded text-[10px] font-mono text-gray-300 transition-colors" data-cmd="AT+CGDCONT?">AT+CGDCONT?</button>
+<button class="at-cmd px-2 py-1.5 bg-input-dark hover:bg-gray-700 border border-gray-700 rounded text-[10px] font-mono text-gray-300 transition-colors" data-cmd="AT+CGPADDR=1">AT+CGPADDR=1</button>
+<button class="at-cmd px-2 py-1.5 bg-input-dark hover:bg-gray-700 border border-gray-700 rounded text-[10px] font-mono text-gray-300 transition-colors" data-cmd="AT+CGACT?">AT+CGACT?</button>
+<button class="at-cmd px-2 py-1.5 bg-input-dark hover:bg-gray-700 border border-gray-700 rounded text-[10px] font-mono text-gray-300 transition-colors" data-cmd="AT+CESQ">AT+CESQ</button>
+<button class="at-cmd px-2 py-1.5 bg-input-dark hover:bg-gray-700 border border-gray-700 rounded text-[10px] font-mono text-gray-300 transition-colors" data-cmd="AT+QENG="servingcell"">AT+QENG</button>
+<button class="at-cmd px-2 py-1.5 bg-input-dark hover:bg-gray-700 border border-gray-700 rounded text-[10px] font-mono text-gray-300 transition-colors" data-cmd="AT+QMTCFG="pdpc",1,1,"IP",0,0">AT+QMT</button>
+</div>
+</div>
+<div class="flex flex-col overflow-hidden rounded-2xl bg-card-dark shadow-lg border border-gray-800">
+<div class="flex items-center justify-between p-3 border-b border-gray-800/50">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-gray-400 text-sm">receipt_long</span>
+<span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Communication Log</span>
+</div>
+<button id="clear-log" class="text-[10px] text-gray-500 hover:text-white transition-colors uppercase font-medium">Clear</button>
+</div>
+<div id="log-container" class="h-64 overflow-y-auto bg-black/40 p-3 font-mono text-[10px] leading-relaxed no-scrollbar">
+<div id="log-content"><div class="text-gray-500 italic">Waiting for connection...</div></div>
+</div>
+</div>
+</main>
+<nav class="fixed bottom-0 inset-x-0 z-50 bg-background-dark/95 backdrop-blur-md border-t border-gray-800 pb-safe">
+<div class="flex justify-between items-center px-2 py-3 max-w-md mx-auto">
+<a class="flex flex-col items-center gap-1 w-full text-primary" href="/sim_network_settings.html">
+<span class="material-symbols-outlined text-[24px]">signal_cellular_alt</span>
+<span class="text-[10px] font-medium">Network</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-full text-gray-500 hover:text-gray-300 transition-colors" href="/">
+<span class="material-symbols-outlined text-[24px]">satellite_alt</span>
+<span class="text-[10px] font-medium">GNSS</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-full text-gray-500 hover:text-gray-300 transition-colors" href="/wifi_hotspot_accespoint.html">
+<span class="material-symbols-outlined text-[24px]">wifi_tethering</span>
+<span class="text-[10px] font-medium">Hotspot</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-full text-gray-500 hover:text-gray-300 transition-colors" href="/ota.html">
+<span class="material-symbols-outlined text-[24px]">system_update</span>
+<span class="text-[10px] font-medium">OTA</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-full text-gray-500 hover:text-gray-300 transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">grid_view</span>
+<span class="text-[10px] font-medium">More</span>
+</a>
+</div>
+<div class="h-4 w-full"></div>
+</nav>
+
+<script>
+"use strict";
+
+let lastResponse = "";
+let waitingForResponse = false;
+
+// Firebase URLs
+const FIREBASE_REQUEST_URL = 'https://esp32s3-bc4de-default-rtdb.europe-west1.firebasedatabase.app/request.json';
+const FIREBASE_ANSWER_URL = 'https://esp32s3-bc4de-default-rtdb.europe-west1.firebasedatabase.app/answer.json';
+
+function el(id) { return document.getElementById(id); }
+
+function setButtonState(waiting) {
+    waitingForResponse = waiting;
+    const btn = el('send-btn');
+    
+    if (waiting) {
+        btn.disabled = true;
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+    } else {
+        btn.disabled = false;
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+}
+
+function getTimestamp() {
+    const now = new Date();
+    return now.toLocaleTimeString('en-US', { hour12: false }) + '.' + String(now.getMilliseconds()).padStart(3, '0');
+}
+
+function addLog(type, message) {
+    const logContent = el('log-content');
+    const timestamp = getTimestamp();
+    let colorClass = type === 'tx' ? 'text-primary' : type === 'rx' ? 'text-emerald-400' : type === 'error' ? 'text-red-400' : 'text-gray-300';
+    const line = document.createElement('div');
+    line.className = 'mb-1 flex gap-2';
+    line.innerHTML = `<span class="text-gray-600 shrink-0">[${timestamp}]</span><span class="${colorClass}">${message}</span>`;
+    logContent.appendChild(line);
+    el('log-container').scrollTop = el('log-container').scrollHeight;
+}
+
+async function sendCommandViaLocal(command) {
+    try {
+        const resp = await fetch(`/api/at_send?cmd=${encodeURIComponent(command)}`);
+        const data = await resp.json();
+        if (data.status === 'sent') {
+            return { success: true };
+        }
+        return { success: false, error: data.error };
+    } catch (e) {
+        return { success: false, error: e.message };
+    }
+}
+
+async function sendCommandViaFirebase(command) {
+    const msgId = Date.now();
+    const data = {
+        msg_id: msgId,
+        command: command,
+        timestamp: msgId
+    };
+    
+    try {
+        const resp = await fetch(FIREBASE_REQUEST_URL, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        
+        if (resp.ok) {
+            return { success: true, msgId: msgId };
+        }
+        return { success: false, error: 'Mesage PUT failed' };
+    } catch (e) {
+        return { success: false, error: e.message };
+    }
+}
+
+async function checkFirebaseResponse(msgId, maxAttempts = 20) {
+    for (let i = 0; i < maxAttempts; i++) {
+        try {
+            const resp = await fetch(FIREBASE_ANSWER_URL);
+            const data = await resp.json();
+            if (data && data.msg_id === msgId && data.response) {
+                return data.response;
+            }
+        } catch (e) {
+            // Ignore errors, keep polling
+        }
+        await new Promise(r => setTimeout(r, 500));
+    }
+    return null;
+}
+
+async function sendCommand() {
+    if (waitingForResponse) {
+        addLog('error', 'Waiting for previous command response...');
+        return;
+    }
+    
+    const command = el('at-command').value.trim();
+    if (!command) { addLog('error', 'Please enter a command'); return; }
+    
+    setButtonState(true);
+    lastResponse = '';
+    commandStartTime = Date.now();
+    addLog('tx', command);
+    
+    // Önce local API dene
+    let result = await sendCommandViaLocal(command);
+    
+    // Local başarısız olursa Firebase dene
+    if (!result.success) {
+        result = await sendCommandViaFirebase(command);
+        
+        if (!result.success) {
+            addLog('error', 'Error: ' + result.error);
+            setButtonState(false);
+            return;
+        }
+        
+        // Firebase yanıtını bekle
+        addLog('info', 'Waiting for remote response...');
+        const response = await checkFirebaseResponse(result.msgId);
+        
+        if (response) {
+            addLog('rx', response);
+            addLog('info', 'Command completed (via remote)');
+        } else {
+            addLog('error', 'Remote response timeout');
+        }
+        
+        setButtonState(false);
+        el('at-command').value = '';
+        return;
+    }
+    
+    // Local başarılıysa normal poll
+    addLog('info', 'Waiting for response...');
+    setTimeout(pollResponse, 500);
+    
+    el('at-command').value = '';
+}
+
+let pollTimeout = null;
+let commandStartTime = null;
+const COMMAND_TIMEOUT_MS = 10000;
+
+async function pollResponse() {
+    if (!waitingForResponse) return;
+    
+    // Timeout kontrolü
+    if (commandStartTime && (Date.now() - commandStartTime > COMMAND_TIMEOUT_MS)) {
+        addLog('error', 'Command timeout');
+        commandStartTime = null;
+        setButtonState(false);
+        return;
+    }
+    
+    try {
+        const resp = await fetch('/api/at_response');
+        const data = await resp.json();
+        if (data.response && data.response.trim() !== '') {
+            addLog('rx', data.response);
+            addLog('info', 'Command completed');
+            commandStartTime = null;
+            setButtonState(false);
+            return;
+        }
+    } catch (e) {
+        addLog('error', 'Poll error: ' + e.message);
+    }
+    
+    pollTimeout = setTimeout(pollResponse, 300);
+}
+
+document.querySelectorAll('.at-cmd').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const cmd = this.getAttribute('data-cmd');
+        el('at-command').value = cmd;
+        el('at-command').focus();
+    });
+});
+
+el('send-btn').addEventListener('click', sendCommand);
+el('at-command').addEventListener('keydown', function(e) { if (e.key === 'Enter' && e.ctrlKey) sendCommand(); });
+el('clear-log').addEventListener('click', function() { el('log-content').innerHTML = '<div class="text-gray-500 italic">Log cleared</div>'; });
+</script>
+</body></html>
