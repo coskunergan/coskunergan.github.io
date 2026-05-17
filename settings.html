@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RGBClock - Teneffüs Ayarları</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #2d3436; padding: 20px; }
+.container { max-width: 860px; margin: 0 auto; }
+.header { background: linear-gradient(135deg, #6C5CE7, #a29bfe); color: #fff; border-radius: 16px; padding: 24px 28px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
+.header h1 { font-size: 22px; font-weight: 600; }
+.header span { font-size: 13px; opacity: .8; }
+.card { background: #fff; border-radius: 14px; padding: 22px 26px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+.card-title { font-size: 14px; font-weight: 600; color: #6C5CE7; margin-bottom: 14px; text-transform: uppercase; letter-spacing: .5px; }
+.row { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
+.row label { font-size: 12px; font-weight: 500; color: #636e72; display: block; margin-bottom: 4px; }
+.row input, .row textarea { padding: 9px 12px; border: 1.5px solid #dfe6e9; border-radius: 8px; font-size: 14px; outline: none; transition: .2s; }
+.row input:focus, .row textarea:focus { border-color: #6C5CE7; box-shadow: 0 0 0 3px rgba(108,92,231,.15); }
+.btn { padding: 9px 18px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: .2s; display: inline-flex; align-items: center; gap: 5px; }
+.btn-primary { background: #6C5CE7; color: #fff; }
+.btn-primary:hover { background: #5a4bd1; transform: translateY(-1px); }
+.btn-secondary { background: #dfe6e9; color: #2d3436; }
+.btn-secondary:hover { background: #b2bec3; }
+.btn-success { background: #00b894; color: #fff; }
+.btn-success:hover { background: #00a381; }
+.btn-warning { background: #fdcb6e; color: #2d3436; }
+.btn-warning:hover { background: #f0b940; }
+.btn-danger { background: #ff7675; color: #fff; padding: 4px 10px; font-size: 12px; }
+.btn-danger:hover { background: #e17055; }
+.btn-sm { padding: 6px 14px; font-size: 12px; }
+.btn-xs { padding: 4px 10px; font-size: 11px; }
+.status-box { background: #f8f9fa; border-radius: 10px; padding: 14px 18px; margin-top: 12px; font-size: 13px; line-height: 1.7; min-height: 0; transition: .3s; white-space: pre-wrap; }
+.status-box.success { background: #e6fff7; border: 1px solid #00b894; }
+.status-box.error { background: #ffe6e6; border: 1px solid #ff7675; }
+.status-box.info { background: #eef0ff; border: 1px solid #6C5CE7; }
+.status-box .label { font-weight: 600; color: #636e72; display: inline-block; width: 80px; }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.tab-btn { padding: 8px 18px; border: 1.5px solid #dfe6e9; background: #fff; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; transition: .2s; }
+.tab-btn:hover { border-color: #6C5CE7; }
+.tab-btn.active { background: #6C5CE7; color: #fff; border-color: #6C5CE7; }
+.entry-row { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid #f0f0f0; flex-wrap: wrap; }
+.entry-row:last-child { border-bottom: none; }
+.entry-row input[type="time"] { width: 110px; }
+.entry-row input[type="number"] { width: 70px; }
+.entry-row input[type="color"] { width: 44px; height: 38px; padding: 2px; border: 1.5px solid #dfe6e9; border-radius: 8px; cursor: pointer; }
+.entry-row .hex-label { font-size: 12px; font-family: monospace; color: #636e72; min-width: 58px; }
+.entry-count { font-size: 12px; color: #b2bec3; margin-top: 6px; text-align: right; }
+.hidden { display: none; }
+.inline-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.csv-area { width: 100%; min-height: 140px; font-family: monospace; font-size: 12px; margin-top: 8px; resize: vertical; }
+.ip-input-sm { width: 145px; }
+.progress-bar { width: 100%; height: 8px; background: #dfe6e9; border-radius: 6px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #6C5CE7, #a29bfe); border-radius: 6px; transition: width .3s ease; }
+.progress-label { font-size: 12px; color: #636e72; margin-top: 4px; text-align: center; }
+.device-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1.5px solid #dfe6e9; border-radius: 10px; margin-bottom: 6px; cursor: pointer; transition: .2s; }
+.device-item:hover { border-color: #6C5CE7; }
+.device-item.selected { border-color: #00b894; background: #e6fff7; }
+.device-item input[type="radio"] { accent-color: #6C5CE7; width: 18px; height: 18px; cursor: pointer; }
+.device-item .ip { font-weight: 600; font-size: 15px; min-width: 120px; }
+.device-item .meta { font-size: 11px; color: #636e72; }
+@media (max-width: 600px) {
+  .header { flex-direction: column; text-align: center; gap: 6px; }
+  .card { padding: 14px; }
+  .row { flex-direction: column; align-items: stretch; }
+  .row > div { width: 100%; }
+  .ip-input-sm { width: 100%; }
+  .device-item { flex-wrap: wrap; gap: 4px 8px; }
+  .device-item .ip { min-width: 0; }
+  .device-item .meta { width: 100%; margin-left: 28px; }
+  .device-item input[type="radio"] { width: 20px; height: 20px; }
+  .entry-row { gap: 5px; }
+  .entry-row input[type="time"] { width: 90px; }
+  .entry-row input[type="number"] { width: 55px; }
+  .entry-row input[type="color"] { width: 36px; height: 32px; }
+  .progress-label { font-size: 11px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>RGBClock <span style="font-size:13px;opacity:.6;font-weight:400">v1.3</span></h1>
+  <span>Teneffüs Zamanlayıcı</span>
+</div>
+
+<div class="card">
+  <div class="card-title">Bağlantı</div>
+  <div class="row">
+    <div><label>Başlangıç IP</label><input type="text" id="startIp" value="192.168.1.2" class="ip-input-sm"></div>
+    <div><label>Bitiş IP</label><input type="text" id="endIp" value="192.168.1.25" class="ip-input-sm"></div>
+    <div><button class="btn btn-primary" id="scanBtn" onclick="startScan()">&#x1F50D; TARA</button></div>
+    <div><button class="btn btn-danger hidden" id="abortBtn" onclick="abortScan()">&#x25A0; İptal</button></div>
+  </div>
+  <div id="scanProgressWrap" class="hidden" style="margin-top:10px">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-label" id="progressLabel">0 / 0 IP tarandı &middot; 0 cihaz bulundu</div>
+  </div>
+  <div id="deviceList" style="margin-top:10px"></div>
+  <div class="row" style="margin-top:12px">
+    <div><label>Şifre</label><input type="password" id="pwdInput" placeholder="(mevcut şifre)" maxlength="16"></div>
+    <div><button class="btn btn-secondary" onclick="testConnection()">&#x1F50D; Test Et</button></div>
+    <div><button class="btn btn-success" onclick="saveAll()">&#x1F4BE; Kaydet</button></div>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <div><label>Yeni Şifre (opsiyonel)</label><input type="password" id="newPwdInput" placeholder="(boş bırak = değişmez)" maxlength="16"></div>
+  </div>
+  <div id="statusBox" class="status-box">IP aralığı girip TARA ile cihazları bulun.</div>
+</div>
+
+<div class="card">
+  <div class="card-title">Teneffüs Tarifesi</div>
+  <div class="tabs" id="dayTabs"></div>
+  <div id="dayPanels"></div>
+  <div style="margin-bottom:10px">
+    <button class="btn btn-secondary btn-sm" onclick="applyToAll(false)">📋 Hepsine Uygula</button>
+    <button class="btn btn-secondary btn-sm" onclick="applyToAll(true)">📋 Hafta İçine Uygula</button>
+    <span style="font-size:11px;color:#636e72;margin-left:4px">(C.tesi+Pazar hariç)</span>
+  </div>
+  <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap">
+    <button class="btn btn-secondary btn-sm" onclick="exportCsv()">CSV Dışa Aktar</button>
+    <button class="btn btn-warning btn-sm" onclick="document.getElementById('csvFileInput').click()">CSV İçe Aktar (Dosya)</button>
+    <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="importCsvFile(event)">
+    <button class="btn btn-secondary btn-sm" onclick="importCsvPrompt()">CSV İçe Aktar (Yapıştır)</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const DAYS = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+let schedule = [];
+for(let i = 0; i < 7; i++) schedule[i] = [];
+
+let selectedIp = null;
+let scanning = false;
+let foundDevices = [];
+function getPwd() { return document.getElementById('pwdInput').value.trim(); }
+function getNewPwd() { return document.getElementById('newPwdInput').value.trim(); }
+
+function setStatus(msg, type) {
+  const box = document.getElementById('statusBox');
+  box.className = 'status-box' + (type ? ' ' + type : '');
+  box.innerHTML = msg;
+}
+
+function testConnection() {
+  const ip = selectedIp;
+  if(!ip) { setStatus('Önce bir cihaz tarayıp seçin.', 'error'); return; }
+  setStatus('Bağlanıyor...');
+  fetch('http://' + ip + '/info', { mode: 'cors' })
+    .then(r => r.text())
+    .then(t => {
+      const parts = t.match(/Mac:\s*(\S+)\s+Ver:\s*(.+?)\s+Name:\s*(.+)/);
+      if(parts) {
+        setStatus(
+          '<div class="label">MAC</div> ' + parts[1] + '<br>' +
+          '<div class="label">Versiyon</div> ' + parts[2] + '<br>' +
+          '<div class="label">Cihaz</div> ' + parts[3],
+          'success');
+      } else {
+        setStatus('Yanıt alındı ama parse edilemedi: ' + t, 'info');
+      }
+    })
+    .catch(e => setStatus('Bağlantı hatası: ' + e.message, 'error'));
+}
+
+function renderDay(dayIdx) {
+  const panel = document.getElementById('panel' + dayIdx);
+  if(!panel) return;
+  let html = '';
+  const entries = schedule[dayIdx];
+  for(let i = 0; i < entries.length; i++) {
+    const e = entries[i];
+    html +=
+      '<div class="entry-row">' +
+      '  <input type="time" value="' + e.start + '" onchange="schedule[' + dayIdx + '][' + i + '].start=this.value">' +
+      '  <input type="number" min="1" max="99" value="' + e.dur + '" oninput="var v=Math.min(99,Math.max(1,+this.value||1));this.value=v;schedule[' + dayIdx + '][' + i + '].dur=v">' +
+      '  <input type="color" value="#' + e.color + '" onchange="schedule[' + dayIdx + '][' + i + '].color=this.value.slice(1)">' +
+      '  <span class="hex-label">' + e.color + '</span>' +
+      '  <button class="btn btn-danger" onclick="removeEntry(' + dayIdx + ',' + i + ')">&times;</button>' +
+      '</div>';
+  }
+  html += '<button class="btn btn-secondary btn-sm" onclick="addEntry(' + dayIdx + ')">+ Teneffüs Ekle</button>';
+  html += '<div class="entry-count">' + entries.length + ' / 10 kayıt</div>';
+  panel.innerHTML = html;
+}
+
+function addEntry(dayIdx) {
+  if(schedule[dayIdx].length >= 10) { setStatus('Maksimum 10 teneffüs.', 'error'); return; }
+  schedule[dayIdx].push({ start: '08:00', dur: 15, color: 'FF7F00' });
+  renderDay(dayIdx);
+}
+
+function removeEntry(dayIdx, idx) {
+  schedule[dayIdx].splice(idx, 1);
+  renderDay(dayIdx);
+}
+
+function buildRngString() {
+  const parts = [];
+  for(let d = 0; d < 7; d++) {
+    const dayParts = [];
+    for(let e = 0; e < schedule[d].length; e++) {
+      const ent = schedule[d][e];
+      dayParts.push(ent.start + ':' + ent.dur + ':' + ent.color);
+    }
+    parts.push(dayParts.join(','));
+  }
+  return parts.join('|');
+}
+
+function saveAll() {
+  const ip = selectedIp;
+  const pwd = getPwd();
+  const newPwd = getNewPwd();
+  if(!ip) { setStatus('Önce bir cihaz tarayıp seçin.', 'error'); return; }
+  if(!pwd) { setStatus('Mevcut şifreyi girin.', 'error'); return; }
+  for(let d = 0; d < 7; d++) {
+    for(let e = 0; e < schedule[d].length; e++) {
+      const ent = schedule[d][e];
+      if(ent.dur < 1 || ent.dur > 99) { setStatus('Süreler 1-99 dakika arası olmalı (' + DAYS[d] + ').', 'error'); return; }
+    }
+  }
+  const rng = buildRngString();
+  let body = 'cr=' + encodeURIComponent(pwd);
+  if(newPwd) {
+    if(newPwd.length < 4 || newPwd.length > 16) { setStatus('Yeni şifre 4-16 karakter olmalı.', 'error'); return; }
+    body += '&nw=' + encodeURIComponent(newPwd);
+  }
+  body += '&rng=' + encodeURIComponent(rng);
+  setStatus('Gönderiliyor...');
+  fetch('http://' + ip + '/settings', {
+    method: 'POST',
+    mode: 'cors',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body
+  })
+    .then(r => r.text())
+    .then(t => {
+      if(t.includes('OK')) {
+        let msg = 'Ayarlar kaydedildi.';
+        if(newPwd) { msg += ' Yeni şifre aktif.'; document.getElementById('pwdInput').value = newPwd; document.getElementById('newPwdInput').value = ''; }
+        setStatus(msg + '\n' + t, 'success');
+      } else {
+        setStatus('Hata: ' + t, 'error');
+      }
+    })
+    .catch(e => setStatus('Bağlantı hatası: ' + e.message, 'error'));
+}
+
+function exportCsv() {
+  let csv = 'Gun;Baslangic;Sure;Renk\n';
+  for(let d = 0; d < 7; d++) {
+    for(let e = 0; e < schedule[d].length; e++) {
+      csv += d + ';' + schedule[d][e].start + ';' + schedule[d][e].dur + ';' + schedule[d][e].color + '\n';
+    }
+  }
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'teneffus_ayarlari.csv';
+  link.click();
+  URL.revokeObjectURL(link.href);
+  setStatus('CSV dışa aktarıldı: ' + csv.split('\n').length + ' satır', 'success');
+}
+
+function importCsvText(text) {
+  const lines = text.trim().split('\n');
+  if(lines.length < 2) { setStatus('CSV dosyası boş.', 'error'); return; }
+  const newSchedule = [];
+  for(let i = 0; i < 7; i++) newSchedule[i] = [];
+  let ok = 0, err = 0;
+  for(let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if(!line) continue;
+    const parts = line.split(';');
+    if(parts.length < 4) { err++; continue; }
+    const day = parseInt(parts[0]);
+    if(isNaN(day) || day < 0 || day > 6) { err++; continue; }
+    const start = parts[1];
+    const dur = parseInt(parts[2]);
+    if(isNaN(dur) || dur < 1 || dur > 99) { err++; continue; }
+    let color = parts[3].toUpperCase().replace(/[^0-9A-F]/g, '');
+    if(color.length > 6) color = color.slice(0,6);
+    while(color.length < 6) color += '0';
+    if(newSchedule[day].length < 10) {
+      newSchedule[day].push({ start, dur, color });
+      ok++;
+    } else { err++; }
+  }
+  for(let d = 0; d < 7; d++) schedule[d] = newSchedule[d];
+  for(let i = 0; i < 7; i++) renderDay(i);
+  setStatus('CSV içe aktarıldı: ' + ok + ' kayıt eklendi' + (err ? ', ' + err + ' atlandı.' : '.'), 'success');
+}
+
+function importCsvFile(event) {
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) { importCsvText(e.target.result); };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function importCsvPrompt() {
+  const csv = prompt('CSV verisini yapıştırın:\n(Gun;Baslangic;Sure;Renk)');
+  if(csv) importCsvText(csv);
+}
+
+function ipToInt(ip) {
+  const parts = ip.split('.');
+  if (parts.length !== 4) return -1;
+  let val = 0;
+  for (let i = 0; i < 4; i++) {
+    const n = parseInt(parts[i], 10);
+    if (isNaN(n) || n < 0 || n > 255) return -1;
+    val = (val << 8) + n;
+  }
+  return val;
+}
+
+function intToIp(val) {
+  return ((val >> 24) & 0xFF) + '.' + ((val >> 16) & 0xFF) + '.' + ((val >> 8) & 0xFF) + '.' + (val & 0xFF);
+}
+
+function generateIpList(startInt, endInt) {
+  const list = [];
+  for (let i = startInt; i <= endInt; i++) list.push(intToIp(i));
+  return list;
+}
+
+async function tryIp(ip) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+  try {
+    const resp = await fetch('http://' + ip + '/info', { mode: 'cors', signal: controller.signal });
+    if (!resp.ok) return null;
+    const text = await resp.text();
+    if (!text.includes('NTP RGB Clock')) return null;
+    const parts = text.match(/Mac:\s*(\S+)\s+Ver:\s*(.+?)\s+Name:\s*(.+)/);
+    if (!parts) return null;
+    return { ip, mac: parts[1], ver: parts[2], name: parts[3] };
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function updateProgress(done, total, found) {
+  const pct = total > 0 ? (done / total * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = done + ' / ' + total + ' IP tarand\u0131 \u00B7 ' + found + ' cihaz bulundu';
+}
+
+function selectDevice(ip) {
+  selectedIp = ip;
+  renderDeviceList();
+  setStatus('Se\u00E7ili: ' + ip, 'info');
+}
+
+function renderDeviceList() {
+  const container = document.getElementById('deviceList');
+  let html = '';
+  for (const d of foundDevices) {
+    const checked = (d.ip === selectedIp) ? 'checked' : '';
+    html +=
+      '<label class="device-item' + (d.ip === selectedIp ? ' selected' : '') + '">' +
+      '  <input type="radio" name="device" value="' + d.ip + '" ' + checked + ' onchange="selectDevice(\'' + d.ip + '\')">' +
+      '  <span class="ip">' + d.ip + '</span>' +
+      '  <span class="meta">' + d.mac + ' | ' + d.ver + ' | ' + d.name + '</span>' +
+      '</label>';
+  }
+  container.innerHTML = html;
+}
+
+async function startScan() {
+  const startStr = document.getElementById('startIp').value.trim();
+  const endStr = document.getElementById('endIp').value.trim();
+  const startInt = ipToInt(startStr);
+  const endInt = ipToInt(endStr);
+  if (startInt === -1 || endInt === -1) {
+    setStatus('Ge\u00E7ersiz IP adresi format\u0131.', 'error'); return;
+  }
+  if (startInt >= endInt) {
+    setStatus('Ba\u015Flang\u0131\u00E7 IP, biti\u015F IP\'den k\u00FC\u00E7\u00FCk olmal\u0131.', 'error'); return;
+  }
+  const ips = generateIpList(startInt, endInt);
+  const total = ips.length;
+  scanning = true;
+  foundDevices = [];
+  selectedIp = null;
+  document.getElementById('scanBtn').classList.add('hidden');
+  document.getElementById('abortBtn').classList.remove('hidden');
+  document.getElementById('scanProgressWrap').classList.remove('hidden');
+  document.getElementById('deviceList').innerHTML = '';
+  updateProgress(0, total, 0);
+  setStatus('Taran\u0131yor...', 'info');
+  let done = 0;
+  let ipIndex = 0;
+  async function worker() {
+    while (scanning) {
+      const idx = ipIndex++;
+      if (idx >= total) break;
+      const device = await tryIp(ips[idx]);
+      done++;
+      if (scanning) {
+        updateProgress(done, total, foundDevices.length);
+      }
+      if (device && scanning) {
+        foundDevices.push(device);
+        renderDeviceList();
+        if (foundDevices.length === 1) selectDevice(device.ip);
+      }
+    }
+  }
+  const poolSize = Math.min(25, total);
+  const workers = [];
+  for (let i = 0; i < poolSize; i++) workers.push(worker());
+  await Promise.allSettled(workers);
+  scanning = false;
+  document.getElementById('abortBtn').classList.add('hidden');
+  document.getElementById('scanBtn').classList.remove('hidden');
+  if (foundDevices.length === 0) {
+    setStatus('Hi\u00E7bir cihaz bulunamad\u0131. IP aral\u0131\u011F\u0131n\u0131 kontrol edin.', 'error');
+  } else {
+    setStatus('Tarama tamamland\u0131: ' + foundDevices.length + ' cihaz bulundu.', 'success');
+  }
+}
+
+function abortScan() {
+  scanning = false;
+  document.getElementById('abortBtn').classList.add('hidden');
+  document.getElementById('scanBtn').classList.remove('hidden');
+  setStatus('Tarama durduruldu.', 'info');
+}
+
+function applyToAll(excludeWeekends) {
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  let activeIdx = 0;
+  tabBtns.forEach((b, i) => { if (b.classList.contains('active')) activeIdx = i; });
+  const count = schedule[activeIdx].length;
+  if (count === 0) {
+    setStatus(DAYS[activeIdx] + ' g\u00FCn\u00FCnde teneff\u00FCs yok. \u00D6nce ekleyin.', 'error');
+    return;
+  }
+  const targetLabel = excludeWeekends ? '5 hafta i\u00E7i g\u00FCne' : 'di\u011Fer 6 g\u00FCne';
+  if (!confirm(DAYS[activeIdx] + ' g\u00FCn\u00FCndeki ' + count + ' teneff\u00FCs\u00FC ' + targetLabel + ' kopyala' + (excludeWeekends ? ' (C.tesi+Pazar atlan\u0131r)' : '') + '?')) return;
+  let copied = 0;
+  for (let i = 0; i < 7; i++) {
+    if (i === activeIdx) continue;
+    if (excludeWeekends && (i === 5 || i === 6)) continue;
+    schedule[i] = schedule[activeIdx].map(e => ({ ...e }));
+    copied++;
+  }
+  for (let i = 0; i < 7; i++) renderDay(i);
+  setStatus(DAYS[activeIdx] + ' \u2192 ' + (excludeWeekends ? 'hafta i\u00E7ine' : 't\u00FCm g\u00Fcnlere') + ' kopyaland\u0131 (' + count + ' teneff\u00FCs, ' + copied + ' g\u00FCn).', 'success');
+}
+
+function initTabs() {
+  const tabContainer = document.getElementById('dayTabs');
+  const panelContainer = document.getElementById('dayPanels');
+  let tabHtml = '', panelHtml = '';
+  for(let i = 0; i < 7; i++) {
+    tabHtml += '<button class="tab-btn' + (i === 0 ? ' active' : '') + '" onclick="switchTab(' + i + ')">' + DAYS[i] + '</button>';
+    panelHtml += '<div id="panel' + i + '" class="' + (i === 0 ? '' : 'hidden') + '"></div>';
+  }
+  tabContainer.innerHTML = tabHtml;
+  panelContainer.innerHTML = panelHtml;
+}
+
+function switchTab(idx) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  document.querySelectorAll('#dayPanels > div').forEach((p, i) => p.classList.toggle('hidden', i !== idx));
+}
+
+initTabs();
+for(let i = 0; i < 7; i++) renderDay(i);
+setStatus('Hazır. IP aralığı girip TARA ile cihazları bulun.', 'info');
+</script>
+</body>
+</html>
