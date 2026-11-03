@@ -594,12 +594,11 @@
 
   <nav id="nav" aria-label="Site sections">
     <a class="nav-mark" href="#hero"><span class="badge" aria-label="Go back to the top">CE</span> coskun ergan</a>
-    <div class="nav-links">
-      <a href="#hero">top</a>
-      <a href="#about">about</a>
-      <a href="#projects">projects</a>
-      <a href="#contact">contact</a>
-    </div>
+      <div class="nav-links">
+        <a href="#hero">top</a>
+        <a href="#about">about</a>
+        <a href="#contact">contact</a>
+      </div>
     <div class="nav-clock">bench <span class="t" id="nav-clock">--:--:--</span> utc</div>
   </nav>
 
@@ -666,139 +665,27 @@
     <section id="about" aria-labelledby="about-h">
       <div class="r-head" data-r>
         <h2 id="about-h">About</h2>
-        <p class="lede">What I work on, what is on the bench, and what you can run right now from this page.</p>
+        <p class="lede">What I work on, and what is on the bench right now.</p>
       </div>
       <p class="r" data-r>
-        I build things that live inside the wire: firmware, telemetry channels, and the small amount of
-        web tooling needed to <b>debug them from a browser</b>. The work sits between embedded C/C++ on
-        microcontrollers and the protocol side of the devices that talk to them — mobile modems, GNSS,
-        over&#8209;the&#8209;air updates, and the <span class="g">AT command surface</span> underneath all of it.
+        I build things that live inside the wire: firmware and telemetry channels. The work sits
+        between embedded C/C++ on microcontrollers and the protocol side of the devices that talk
+        to them — mobile modems, GNSS, over&#8209;the&#8209;air updates, and the <span class="g">AT command surface</span>
+        underneath all of it.
       </p>
       <p class="r" data-r>
-        Most of it runs on an <b>ESP32&#8209;S3</b> on a bench with a soldered&#8209;on cellular module. A browser page
-        is the fastest thing to reach for, so the debugging tools are web pages: an AT&#8209;command console that
-        reaches the board through a Firebase channel, a hash&#8209;puzzle lab, and the oscilloscope above —
-        drawn pixel by pixel in <code>canvas 2D</code>, no libraries, no build step.
+        Most of it runs on an <b>ESP32&#8209;S3</b> on a bench with a soldered&#8209;on cellular module.
       </p>
-      <div class="pull" data-r>“If a device answers a string, you can debug it from a tab.”</div>
-
-      <div class="dash" data-r aria-label="Bench readout: values taken from the tooling on this domain">
-        <div class="cell"><span class="k">preset at commands</span><span class="v" id="c-at">12</span><span class="meter"><span class="bar"></span></span></div>
-        <div class="cell"><span class="k">md5 digest</span><span class="v" id="c-bits">128</span><span class="u">bit</span></div>
-        <div class="cell"><span class="k">sweep window</span><span class="v" id="c-window">80</span><span class="u">ms</span></div>
-        <div class="cell"><span class="k">max harmonics</span><span class="v" id="c-harm">4</span><span class="u">overtones</span></div>
-        <div class="cell"><span class="k">command timeout</span><span class="v" id="c-timeout">10</span><span class="u">seconds</span></div>
-        <div class="cell"><span class="k">grid divisions</span><span class="v" id="c-div">10</span><span class="u">× 6</span></div>
-      </div>
-
-      <div class="chips-row" data-r aria-label="Areas of work">
-        <span class="chip">embedded c / c++</span>
+      <div class="chips-row" data-r aria-label="Languages and areas of work">
+        <span class="chip">c / c++</span>
+        <span class="chip">rust</span>
+        <span class="chip">embedded systems</span>
         <span class="chip">esp32 toolchains</span>
         <span class="chip">mobile modem &amp; at commands</span>
         <span class="chip">gnss &amp; telematics</span>
         <span class="chip">ota &amp; partition flows</span>
         <span class="chip">hashcash / proof of work</span>
         <span class="chip">signal &amp; oscilloscopy</span>
-        <span class="chip">browser debugging tools</span>
-      </div>
-    </section>
-
-    <!-- ================= PROJECTS ================= -->
-    <section id="projects" aria-labelledby="projects-h">
-      <div class="r-head" data-r>
-        <h2 id="projects-h">Projects</h2>
-        <p class="lede">Everything reachable from this domain right now. Two of them are live links you can open.</p>
-      </div>
-
-      <div class="cards" data-r>
-        <div class="card">
-          <span class="idx">01 / 04</span>
-          <span class="kind">telematics · esp32&#8209;s3 <span class="live">live</span></span>
-          <h3>AT Command Console <span class="tag">▍ open</span></h3>
-          <div class="desc">
-            Send a raw <code>AT+CSQ</code>, <code>AT+CEREG?</code> or <code>AT+QENG="servingcell"</code> and watch the
-            board answer. The console tries the device's local API first, then falls back to a
-            <b>Firebase RTDB channel</b>, and prints every TX / RX line with millisecond timestamps.
-          </div>
-          <div class="specs">
-            <div class="row"><span class="k">transport</span><span class="v">local API → Firebase RTDB</span></div>
-            <div class="row"><span class="k">presets</span><span class="v">12 quick commands</span></div>
-            <div class="row"><span class="k">timeout</span><span class="v">10 s poll window</span></div>
-            <div class="row"><span class="k">siblings</span><span class="v">GNSS, hotspot, OTA</span></div>
-          </div>
-          <div class="act">
-            <a href="apply_at_command.html" rel="noopener">open the console</a>
-            <span class="note">the tab reaches the device, not a mock</span>
-          </div>
-          <span class="corner" aria-hidden="true"></span>
-        </div>
-
-        <div class="card">
-          <span class="idx">02 / 04</span>
-          <span class="kind">cryptography · demo</span>
-          <h3>Proof&#8209;of&#8209;Work Lab</h3>
-          <div class="desc">
-            <code>H(message, nonce)</code> with MD5, run over an incrementing nonce until the digest starts with
-            <span class="g">N leading zeros</span>. The message is editable, the difficulty is a dial, and the counter
-            runs in front of you — the classic hashcash preimage search in a few dozen lines.
-          </div>
-          <div class="specs">
-            <div class="row"><span class="k">digest</span><span class="v">MD5, 128 bit</span></div>
-            <div class="row"><span class="k">target</span><span class="v">N leading zeros</span></div>
-            <div class="row"><span class="k">stack</span><span class="v">jQuery 3 + CryptoJS</span></div>
-            <div class="row"><span class="k">editable</span><span class="v">message + nonce</span></div>
-          </div>
-          <div class="act">
-            <a href="pow/" rel="noopener">run the lab</a>
-            <span class="note">set difficulty to 5 and watch it grind</span>
-          </div>
-          <span class="corner" aria-hidden="true"></span>
-        </div>
-
-        <div class="card">
-          <span class="idx">03 / 04</span>
-          <span class="kind">embedded · ongoing</span>
-          <h3>Bench Work <span class="tag">▍ boards</span></h3>
-          <div class="desc">
-            Everything else: board wiring, cellular and GNSS plumbing, over&#8209;the&#8209;air update flows, thermal
-            and power questions, and whatever currently needs a scope. Some of it is still private, so the
-            <b>public trace is the commit history</b>.
-          </div>
-          <div class="specs">
-            <div class="row"><span class="k">hardware</span><span class="v">ESP32&#8209;S3, soldered modules</span></div>
-            <div class="row"><span class="k">language</span><span class="v">C / C++ + Python tooling</span></div>
-            <div class="row"><span class="k">protocols</span><span class="v">AT, RIL, GNSS, HTTP</span></div>
-            <div class="row"><span class="k">public</span><span class="v">commit history</span></div>
-          </div>
-          <div class="act">
-            <a href="https://github.com/coskunergan" target="_blank" rel="noopener noreferrer">commit history</a>
-            <span class="note">the repos are the work log</span>
-          </div>
-          <span class="corner" aria-hidden="true"></span>
-        </div>
-
-        <div class="card">
-          <span class="idx">04 / 04</span>
-          <div class="kind">instrument · this page</div>
-          <h3>Phosphor Scope</h3>
-          <div class="desc">
-            The instrument you are already using. Vanilla <code>canvas 2D</code>: phosphor persistence by
-            progressively erasing the previous frame, rising&#8209;edge trigger detection with live crossing
-            markers, harmonic overtones up to 5×, and a sweep line that reads the trace the way a
-            real scope reads one.
-          </div>
-          <div class="specs">
-            <div class="row"><span class="k">waveforms</span><span class="v">sine · square · saw · tri</span></div>
-            <div class="row"><span class="k">overtones</span><span class="v">0 – 4 harmonics</span></div>
-            <div class="row"><span class="k">trigger</span><span class="v">rising&#8209;edge crossings</span></div>
-            <div class="row"><span class="k">dependencies</span><span class="v">none</span></div>
-          </div>
-          <div class="act">
-            <a href="#hero">back to the screen</a>
-            <span class="note">← → freq · ↑ ↓ amp · h harmonics · s q w e type</span>
-          </div>
-          <span class="corner" aria-hidden="true"></span>
-        </div>
       </div>
     </section>
 
@@ -818,16 +705,10 @@
           <span class="lbl">copy handle</span> coskunergan
         </button>
       </div>
-      <p class="r" data-r>
-        Prefer plain text? Everything on this page is one HTML file — <b>no framework, no build step, no
-        dependencies beyond one font</b>. Read the source and take what you need.
-      </p>
       <div class="wordmark" data-r>Coşkun <span class="dot" aria-hidden="true"></span> ERGAN</div>
     </section>
 
     <footer>
-      <span class="foot">single html file</span>
-      <span class="foot">jetbrains mono</span>
       <a href="#hero">top</a>
       <a href="https://github.com/coskunergan" target="_blank" rel="noopener noreferrer">github</a>
       <span class="year" id="foot-year">—</span>
@@ -941,32 +822,12 @@
       for (var b = 0; b < revealables.length; b++) io.observe(revealables[b]);
     })();
 
-    /* ---------- 03 · dashboard counters ----------------------------- */
+    /* ---------- 03 · dashboard counters — removed --- */
     var counterDone = true;
     (function () {
-      var specs = [];
-      function add(id, to) { var el = document.getElementById(id); if (el) specs.push({ el: el, to: to, t0: null }); }
-      add('c-at', 12); add('c-bits', 128); add('c-window', 80);
-      add('c-harm', 4); add('c-timeout', 10); add('c-div', 10);
-      if (!specs.length) return;
-      if (!MOTION) {
-        for (var i = 0; i < specs.length; i++) specs[i].el.textContent = String(specs[i].to);
-        return;
-      }
-      counterDone = false;
-      window.__counters = function (now) {
-        if (counterDone) return;
-        var done = true;
-        for (var i = 0; i < specs.length; i++) {
-          var sp = specs[i];
-          if (sp.t0 === null) sp.t0 = now;
-          var p = Math.min(1, (now - sp.t0) / 1100);
-          if (p < 1) done = false;
-          sp.el.textContent = String(Math.round(sp.to * (1 - Math.pow(1 - p, 3))));
-        }
-        counterDone = done;
-      };
-      window.__counters(Date.now());
+      if (!MOTION) return;
+      counterDone = true;
+      window.__counters = function () {};
     })();
 
     /* ---------- 04 · hero spotlight follows the pointer ------------- */
@@ -1053,7 +914,6 @@
         last = now;
         if (!fit()) { raf = requestAnimationFrame(frame); return; }
 
-        if (window.__counters) window.__counters(now);
         syncScroll();
 
         var n = nodes.length, i, node;
